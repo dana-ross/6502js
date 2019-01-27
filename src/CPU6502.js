@@ -92,9 +92,15 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 		this.S = (this.S & 254) + (result >= 0);
 	}
 
-	this.calculate_branch = function (operand) {
+	/**
+	 * Calculate target address for a branch (BR*) opcode
+	 * @param {Number} pc Current PC register value
+	 * @param {Number} operand BR* opcode operand (# of bytes to branch)
+	 * @return {Number} address
+	 */
+	function calculate_branch(pc, operand) {
 		// console.log(operand.toString(2), operand.toString(16), operand.toString(10))
-		this.PC += (operand - ((operand < 0x80) ? 0 : 256));
+		return pc + (operand - ((operand < 0x80) ? 0 : 256));
 		// console.log('new PC', this.PC.toString(16))
 	};
 
@@ -401,7 +407,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 					this.operand = read_byte(this.PC);
 					this.PC += 1;
 					if (this.S & 128) {
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
@@ -424,7 +430,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 					this.operand = read_byte(this.PC);
 					this.PC += 1;
 					if (this.S & 128) {
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
@@ -445,7 +451,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 					this.operand = read_byte(this.PC);
 					this.PC += 1;
 					if (this.S & 64) {
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
@@ -472,7 +478,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 					this.operand = read_byte(this.PC);
 					this.PC += 1;
 					if (!(this.S & 1)) {
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
@@ -484,7 +490,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 					this.operand = read_byte(this.PC);
 					this.PC += 1;
 					if (this.S & 1) {
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
@@ -495,10 +501,8 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 				if (this.opcode_cycle === 2) {
 					this.operand = read_byte(this.PC);
 					this.PC += 1;
-					console.log((this.S & 2).toString(2))
 					if ((this.S & 2) !== 2) {
-						console.log(this.operand.toString(16))
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
@@ -511,7 +515,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 					this.PC += 1;
 					console.log('S', this.S.toString(2))
 					if (this.S & 2) {
-						this.calculate_branch(this.operand);
+						this.PC = calculate_branch(this.PC, this.operand);
 					}
 					opcode_done = true;
 				}
