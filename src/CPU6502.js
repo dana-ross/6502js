@@ -99,9 +99,7 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 	 * @return {Number} address
 	 */
 	function calculate_branch(pc, operand) {
-		// console.log(operand.toString(2), operand.toString(16), operand.toString(10))
 		return pc + (operand - ((operand < 0x80) ? 0 : 256));
-		// console.log('new PC', this.PC.toString(16))
 	};
 
 	/**
@@ -270,7 +268,6 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 				this.addr_mode = 'implied';
 				if (this.opcode_cycle === 1) {
 					this.Y -= 1;
-					// console.log(`Y = ${this.Y}`)
 					this.set_nz(this.Y);
 					opcode_done = true;
 				}
@@ -979,7 +976,6 @@ module.exports = function CPU6502(read_byte, write_byte, symbol_table_lookup) {
 		}
 
 		if (opcode_done) {
-			// console.log(this.S.toString(2))
 			this.opcode_cycle = 0;
 		} else {
 			this.opcode_cycle += 1;
